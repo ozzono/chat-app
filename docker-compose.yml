@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  ui:
+    build:
+      context: ./UI
+    ports:
+      - "8080:80"

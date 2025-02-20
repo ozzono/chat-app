@@ -1,0 +1,92 @@
+basePath: /
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample server for a chat application.
+  title: Chat App API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Get the health status of the service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
+  /rooms:
+    get:
+      consumes:
+      - application/json
+      description: List available chat rooms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get chat rooms
+      tags:
+      - chat
+    post:
+      consumes:
+      - application/json
+      description: Create a new chat room
+      parameters:
+      - description: Room name
+        in: body
+        name: room
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Room created
+          schema:
+            type: string
+      summary: Create chat room
+      tags:
+      - chat
+  /rooms/{room}/bind:
+    get:
+      consumes:
+      - application/json
+      description: Bind to a given chat room
+      parameters:
+      - description: Room name
+        in: path
+        name: room
+        required: true
+        type: string
+      - description: Nickname
+        in: query
+        name: nickname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Connected
+          schema:
+            type: string
+      summary: Bind to chat room
+      tags:
+      - chat
+swagger: "2.0"
