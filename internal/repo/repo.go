@@ -1,20 +1,11 @@
 package repo
 
 import (
-	"context"
-
-	"chat-app/pkg/queue"
+	"chat-app/internal/models"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
-
-type Room struct {
-	gorm.Model
-	Name      string          `gorm:"unique"`
-	TaskQueue chan queue.Task `gorm:"-"`
-	Worker    *queue.Worker   `gorm:"-"`
-}
 
 type Repo struct {
 	DB *gorm.DB
@@ -26,7 +17,10 @@ func NewRepo(dsn string) (*Repo, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&Room{})
+	err = db.AutoMigrate(
+		&models.Room{},
+		&models.Message{},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -35,15 +29,21 @@ func NewRepo(dsn string) (*Repo, error) {
 }
 
 func (r *Repo) CreateRoom(name string) error {
-	room := Room{Name: name, TaskQueue: make(chan queue.Task)}
-	room.Worker = queue.NewWorker(name)
-	room.Worker.TaskQueue = room.TaskQueue
-	go room.Worker.StartWorker(context.Background()) // Pass a valid context
-	return r.DB.Create(&room).Error
+	return r.DB.Create(&models.Room{Name: name}).Error
 }
 
-func (r *Repo) GetRooms() ([]Room, error) {
-	var rooms []Room
+func (r *Repo) GetRooms() ([]models.Room, error) {
+	var rooms models.Rooms
 	err := r.DB.Find(&rooms).Error
 	return rooms, err
+}
+
+func (r *Repo) CreateMessage(msg models.Message) error {
+	return r.DB.Create(&msg).Error
+}
+
+func (r *Repo) GetMessages(room string) ([]models.Message, error) {
+	var msgs models.Messages
+	err := r.DB.Find(&msgs, "room = ?", room).Error
+	return msgs, err
 }

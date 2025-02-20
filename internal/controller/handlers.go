@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"chat-app/internal/model"
+	"chat-app/internal/models"
 	"chat-app/pkg/queue"
 
 	"github.com/gin-gonic/gin"
@@ -140,11 +140,11 @@ func (c *Controller) BindRoomHandler(ctx *gin.Context) {
 		if err != nil {
 			break
 		}
-		message := model.Message{
+		message := models.Message{
 			Room:      roomName,
 			Nickname:  nickname,
 			Timestamp: time.Now(),
-			Msg:       string(msg),
+			Content:   string(msg),
 		}
 		room.TaskQueue <- &messageTask{message: message, room: room}
 	}
@@ -174,14 +174,14 @@ func (c *Controller) WebSocketHandler(ctx *gin.Context) {
 }
 
 type messageTask struct {
-	message model.Message
+	message models.Message
 	room    *Room
 }
 
 func (t *messageTask) Action(ctx context.Context) error {
 	for nick, conn := range t.room.Connections {
 		if nick != t.message.Nickname {
-			conn.WriteMessage(websocket.TextMessage, []byte(t.message.Msg))
+			conn.WriteMessage(websocket.TextMessage, []byte(t.message.Content))
 		}
 	}
 	return nil
