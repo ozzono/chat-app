@@ -6,7 +6,7 @@ info:
   title: Chat App API
   version: "1.0"
 paths:
-  /health:
+  /api/v1/health:
     get:
       consumes:
       - application/json
@@ -23,7 +23,7 @@ paths:
       summary: Health check
       tags:
       - health
-  /rooms:
+  /api/v1/rooms:
     get:
       consumes:
       - application/json
@@ -63,7 +63,7 @@ paths:
       summary: Create chat room
       tags:
       - chat
-  /rooms/{room}/bind:
+  /api/v1/rooms/{room}/bind:
     get:
       consumes:
       - application/json
@@ -89,7 +89,7 @@ paths:
       summary: Bind to chat room
       tags:
       - chat
-  /ws:
+  /api/v1/ws:
     get:
       consumes:
       - application/json

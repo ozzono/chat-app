@@ -32,7 +32,7 @@ var upgrader = websocket.Upgrader{
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} map[string]string
-// @Router /health [get]
+// @Router /api/v1/health [get]
 func (c *Controller) HealthHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "up"})
 }
@@ -44,7 +44,7 @@ func (c *Controller) HealthHandler(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} string
-// @Router /rooms [get]
+// @Router /api/v1/rooms [get]
 func (c *Controller) GetRoomsHandler(ctx *gin.Context) {
 	rooms, err := c.repo.GetRooms()
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *Controller) GetRoomsHandler(ctx *gin.Context) {
 // @Produce  json
 // @Param room body map[string]string true "Room name"
 // @Success 201 {string} string "Room created"
-// @Router /rooms [post]
+// @Router /api/v1/rooms [post]
 func (c *Controller) CreateRoomHandler(ctx *gin.Context) {
 	var req struct {
 		Name string `json:"name"`
@@ -102,7 +102,7 @@ func (c *Controller) CreateRoomHandler(ctx *gin.Context) {
 // @Param room path string true "Room name"
 // @Param nickname query string true "Nickname"
 // @Success 200 {string} string "Connected"
-// @Router /rooms/{room}/bind [get]
+// @Router /api/v1/rooms/{room}/bind [get]
 func (c *Controller) BindRoomHandler(ctx *gin.Context) {
 	roomName := ctx.Param("room")
 	nickname := ctx.Query("nickname")
@@ -156,7 +156,7 @@ func (c *Controller) BindRoomHandler(ctx *gin.Context) {
 // @Tags websocket
 // @Accept  json
 // @Produce  json
-// @Router /ws [get]
+// @Router /api/v1/ws [get]
 func (c *Controller) WebSocketHandler(ctx *gin.Context) {
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {

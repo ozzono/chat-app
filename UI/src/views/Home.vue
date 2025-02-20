@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     fetchRooms() {
-      axios.get('/api/rooms')
+      axios.get('/api/v1/rooms')
         .then(response => {
           this.rooms = response.data; // Ensure the correct data structure
         })
@@ -37,7 +37,7 @@ export default {
     createRoom() {
       const roomName = prompt('Enter room name:');
       if (roomName) {
-        axios.post('/api/rooms', { name: roomName })
+        axios.post('/api/v1/rooms', { name: roomName })
           .then(() => {
             this.fetchRooms();
           })

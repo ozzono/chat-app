@@ -3,9 +3,12 @@ package controller
 import (
 	"errors"
 
+	_ "chat-app/docs" // replace with the actual path to your docs
 	"chat-app/internal/repo"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Controller struct {
@@ -43,8 +46,14 @@ func NewController(opts ...Option) (*Controller, error) {
 }
 
 func (c *Controller) RegisterRoutes() {
-	c.router.GET("/health", c.HealthHandler)
-	c.router.GET("/rooms", c.GetRoomsHandler)
-	c.router.POST("/rooms", c.CreateRoomHandler)
-	c.router.GET("/rooms/:room/bind", c.BindRoomHandler)
+	c.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	apiV1 := c.router.Group("/api/v1")
+
+	apiV1.GET("/ws", c.WebSocketHandler)
+
+	apiV1.GET("/health", c.HealthHandler)
+	apiV1.GET("/rooms", c.GetRoomsHandler)
+	apiV1.POST("/rooms", c.CreateRoomHandler)
+	apiV1.GET("/rooms/:room/bind", c.BindRoomHandler)
 }

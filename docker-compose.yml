@@ -20,6 +20,8 @@ services:
       - "3000:3000"
     networks:
       - chat-network
+    environment:
+      - API_URL=http://chat-app-api:8080
 
 networks:
   chat-network:

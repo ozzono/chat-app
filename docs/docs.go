@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health": {
+        "/api/v1/health": {
             "get": {
                 "description": "Get the health status of the service",
                 "consumes": [
@@ -41,7 +41,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/rooms": {
+        "/api/v1/rooms": {
             "get": {
                 "description": "List available chat rooms",
                 "consumes": [
@@ -102,7 +102,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/rooms/{room}/bind": {
+        "/api/v1/rooms/{room}/bind": {
             "get": {
                 "description": "Bind to a given chat room",
                 "consumes": [
@@ -141,7 +141,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ws": {
+        "/api/v1/ws": {
             "get": {
                 "description": "Establish and handle WebSocket connections",
                 "consumes": [

@@ -22,11 +22,15 @@ FROM nginx:alpine
 # Copy the built application to the Nginx HTML directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy the custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy the custom Nginx configuration template
+COPY nginx.conf.template /etc/nginx/conf.d/nginx.conf.template
+
+# Copy the startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Expose port 3000
 EXPOSE 3000
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start Nginx using the startup script
+CMD ["/start.sh"]
