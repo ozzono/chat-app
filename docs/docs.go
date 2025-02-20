@@ -140,6 +140,22 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/ws": {
+            "get": {
+                "description": "Establish and handle WebSocket connections",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "websocket"
+                ],
+                "summary": "Handle WebSocket connections",
+                "responses": {}
+            }
         }
     }
 }`

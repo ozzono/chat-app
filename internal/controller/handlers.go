@@ -150,7 +150,13 @@ func (c *Controller) BindRoomHandler(ctx *gin.Context) {
 	}
 }
 
-// WebSocketHandler handles WebSocket connections
+// WebSocketHandler godoc
+// @Summary Handle WebSocket connections
+// @Description Establish and handle WebSocket connections
+// @Tags websocket
+// @Accept  json
+// @Produce  json
+// @Router /ws [get]
 func (c *Controller) WebSocketHandler(ctx *gin.Context) {
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {

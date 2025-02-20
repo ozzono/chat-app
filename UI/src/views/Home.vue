@@ -2,6 +2,7 @@
   <div class="home">
     <h1>Chat Rooms</h1>
     <button @click="createRoom">Create Room</button>
+    <button @click="fetchRooms">Refresh Rooms</button>
     <ul>
       <li v-for="room in rooms" :key="room">
         {{ room }}
@@ -27,7 +28,7 @@ export default {
     fetchRooms() {
       axios.get('/api/rooms')
         .then(response => {
-          this.rooms = response.data;
+          this.rooms = response.data; // Ensure the correct data structure
         })
         .catch(error => {
           console.error('Error fetching rooms:', error);
