@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -14,8 +13,6 @@ func NewSocketConnection(w http.ResponseWriter, r *http.Request) (*websocket.Con
 			return true
 		},
 	}
-
-	log.Println("header", r.Header)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

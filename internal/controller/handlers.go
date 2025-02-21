@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -13,12 +14,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 )
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 // Health godoc
 // @Summary Health check
@@ -49,62 +44,62 @@ func (c *Controller) GetRooms(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rooms)
 }
 
-// CreateRoom godoc
-// @Summary Create chat room
-// @Description Create a new chat room
-// @Tags chat
-// @Accept  json
-// @Produce  json
-// @Param room body map[string]string true "Room name"
-// @Success 201 {string} string "Room created"
-// @Router /api/v1/rooms [post]
-func (c *Controller) CreateRoom(ctx *gin.Context) {
-	var req struct {
-		ID string `json:"id"`
-	}
+// // CreateRoom godoc
+// // @Summary Create chat room
+// // @Description Create a new chat room
+// // @Tags chat
+// // @Accept  json
+// // @Produce  json
+// // @Param room body map[string]string true "Room name"
+// // @Success 201 {string} string "Room created"
+// // @Router /api/v1/rooms [post]
+// func (c *Controller) CreateRoom(ctx *gin.Context) {
+// 	var req struct {
+// 		ID string `json:"id"`
+// 	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// 	if err := ctx.ShouldBindJSON(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	if req.ID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Room ID is required"})
-		return
-	}
+// 	if req.ID == "" {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Room ID is required"})
+// 		return
+// 	}
 
-	if err := c.repo.AddRoom(req.ID); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+// 	if err := c.repo.AddRoom(req.ID); err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	upgrader := websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
+// 	upgrader := websocket.Upgrader{
+// 		CheckOrigin: func(r *http.Request) bool {
+// 			return true
+// 		},
+// 	}
 
-	ctx.Writer.Header().Del("Content-Type")
-	ctx.Writer.Header().Set("Connection", "Upgrade")
-	ctx.Writer.Header().Set("Upgrade", "websocket")
-	log.Println("header", ctx.Request.Header)
-	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to establish websocket connection"})
-		return
-	}
+// 	ctx.Writer.Header().Del("Content-Type")
+// 	ctx.Writer.Header().Set("Connection", "Upgrade")
+// 	ctx.Writer.Header().Set("Upgrade", "websocket")
+// 	log.Println("header", ctx.Request.Header)
+// 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to establish websocket connection"})
+// 		return
+// 	}
 
-	// conn, err := utils.NewSocketConnection(ctx.Writer, ctx.Request)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to establish WebSocket connection"})
-	// 	return
-	// }
+// 	// conn, err := utils.NewSocketConnection(ctx.Writer, ctx.Request)
+// 	// if err != nil {
+// 	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to establish WebSocket connection"})
+// 	// 	return
+// 	// }
 
-	room := c.NewRoom(req.ID, conn)
-	room.Worker.StartWorker(c.ctx)
+// 	room := c.NewRoom(req.ID, conn)
+// 	room.Worker.StartWorker(c.ctx)
 
-	ctx.JSON(http.StatusCreated, gin.H{"msg": "Room created"})
-}
+// 	ctx.JSON(http.StatusCreated, gin.H{"msg": "Room created"})
+// }
 
 type messageTask struct {
 	message   models.Message
@@ -113,30 +108,50 @@ type messageTask struct {
 	mu        sync.Mutex
 }
 
+func NewMsgTask(msg models.Message, conn *websocket.Conn) queue.Task {
+	return &messageTask{
+		message: msg,
+		conn:    conn,
+	}
+}
+
+func (t *messageTask) Log() {
+	log.Printf("message from %s reached execution limit", t.message.Nickname)
+}
+
 func (t *messageTask) Action(ctx context.Context) error {
+	fmt.Println("stuff msg task Action 5")
+
 	if t.conn == nil {
 		return nil
 	}
+	fmt.Println("stuff msg task Action 6")
 	if t.ExecCount() >= queue.ExecutionLimit {
-		return nil
+		return errors.New("message reached execution limit")
 	}
 
 	defer t.AddExecCount()
-	err := t.conn.WriteMessage(websocket.TextMessage, []byte(t.message.Content))
+	text := t.message.Fmt()
+	fmt.Println("t.message.Fmt()", text)
+	err := t.conn.WriteMessage(websocket.TextMessage, []byte(text))
 
 	if err != nil {
+		fmt.Println("stuff msg task Action 8")
 		return errors.Wrap(err, "failed to send message")
 	}
+	fmt.Println("stuff msg task Action 9")
 	return nil
 }
 
 func (t *messageTask) ExecCount() int {
+	fmt.Println("stuff ExecCount 10")
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	return t.execCount
 }
 
 func (t *messageTask) AddExecCount() {
+	fmt.Println("stuff AddExecCount 11")
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.execCount++

@@ -143,7 +143,7 @@ func TestWorkerErrorHandling(t *testing.T) {
 	taskWithError := &mockTask{m: &sync.Mutex{}}
 	customAction := &customAction{error: fmt.Errorf("task error")}
 	worker := NewWorker("testWorker")
-	worker.StartWorker(context.WithValue(context.Background(), customActionKey{}, customAction))
+	go worker.StartWorker(context.WithValue(context.Background(), customActionKey{}, customAction))
 
 	// Define a task that returns an error
 

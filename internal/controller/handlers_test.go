@@ -56,7 +56,7 @@ func (suite *HandlersTestSuite) TearDownSuite() {
 	suite.server.Close()
 }
 
-func (suite *HandlersTestSuite) Test1HealthHandler() {
+func (suite *HandlersTestSuite) Test1Health() {
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/api/v1/health", nil)
 	suite.NoError(err)
@@ -67,18 +67,36 @@ func (suite *HandlersTestSuite) Test1HealthHandler() {
 	suite.JSONEq(`{"status": "up"}`, w.Body.String())
 }
 
-func (suite *HandlersTestSuite) Test2CreateRoomHandler() {
-	w := httptest.NewRecorder()
-	body := roomPayload(testRoom.ID)
-	req, _ := http.NewRequest("POST", "/api/v1/rooms", strings.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	suite.router.ServeHTTP(w, req)
+func (suite *HandlersTestSuite) Test2BindRoom() {
+	fmt.Println("starting Test2BindRoom")
+	bindingUrl := "ws" + strings.TrimPrefix(suite.server.URL, "http") + "/api/v1/rooms/testroom/bind?nickname=user1"
+	ws1, _, err := websocket.DefaultDialer.Dial(bindingUrl, nil)
+	suite.NoError(err)
+	fmt.Println("dial no err")
+	ws1.Close()
 
-	suite.Equal(201, w.Code)
-	suite.JSONEq(`{"msg": "Room created"}`, w.Body.String())
+	readingURL := "ws" + strings.TrimPrefix(suite.server.URL, "http") + "/api/v1/rooms/testroom/testuser/send?content=hello"
+	ws2, _, _ := websocket.DefaultDialer.Dial(readingURL, nil)
+
+	_, msg, err := ws2.ReadMessage()
+	fmt.Println("read message no err")
+
+	suite.NoError(err)
+	suite.Equal("hello", string(msg))
 }
 
-func (suite *HandlersTestSuite) Test3GetRoomsHandler() {
+// func (suite *HandlersTestSuite) Test2CreateRoom() {
+// 	w := httptest.NewRecorder()
+// 	body := roomPayload(testRoom.ID)
+// 	req, _ := http.NewRequest("POST", "/api/v1/rooms", strings.NewReader(body))
+// 	req.Header.Set("Content-Type", "application/json")
+// 	suite.router.ServeHTTP(w, req)
+
+// 	suite.Equal(201, w.Code)
+// 	suite.JSONEq(`{"msg": "Room created"}`, w.Body.String())
+// }
+
+func (suite *HandlersTestSuite) Test3GetRooms() {
 	rec := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/api/v1/rooms", nil)
 	suite.NoError(err)
@@ -93,32 +111,6 @@ func (suite *HandlersTestSuite) Test3GetRoomsHandler() {
 	suite.Equal(testRoom.ID, reqRoom[0].ID)
 }
 
-func (suite *HandlersTestSuite) Test4BindRoomHandler() {
-	fmt.Println("starting Test4BindRoomHandler")
-	u := "ws" + strings.TrimPrefix(suite.server.URL, "http") + "/api/v1/rooms/testroom/bind?nickname=user1"
-	ws1, _, err := websocket.DefaultDialer.Dial(u, nil)
-	suite.NoError(err)
-	fmt.Println("dial no err")
-	defer ws1.Close()
-
-	err = ws1.WriteMessage(websocket.TextMessage, []byte("hello"))
-	suite.NoError(err)
-	fmt.Println("write message no err")
-
-	_, msg, err := ws1.ReadMessage()
-	fmt.Println("read message no err")
-
-	suite.NoError(err)
-	suite.Equal("hello", string(msg))
-
-	fmt.Println("close?")
-	ws1.Close()
-}
-
 func TestHandlersTestSuite(t *testing.T) {
 	suite.Run(t, new(HandlersTestSuite))
-}
-
-func roomPayload(id string) string {
-	return `{"id": "` + id + `"}`
 }

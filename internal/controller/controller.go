@@ -16,6 +16,7 @@ import (
 
 type Controller struct {
 	ctx    context.Context
+	Cancel func()
 	router *gin.Engine
 	repo   *repo.Repo
 
@@ -40,7 +41,12 @@ func WithRepo(r *repo.Repo) Option {
 }
 
 func NewController(opts ...Option) (*Controller, error) {
-	c := &Controller{Rooms: make(map[string]*models.Room)}
+	ctx, cancel := context.WithCancel(context.Background())
+	c := &Controller{
+		Rooms:  make(map[string]*models.Room),
+		ctx:    ctx,
+		Cancel: cancel,
+	}
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
 			return nil, err
@@ -62,9 +68,9 @@ func (c *Controller) RegisterRoutes() {
 	{
 		api.GET("/health", c.Health)
 		api.GET("/rooms", c.GetRooms)
-		api.POST("/rooms", c.CreateRoom)
+		// api.POST("/rooms", c.CreateRoom)
 		api.GET("/rooms/:room/bind", c.BindRoom)
-		api.PUT("/rooms/:room/send", c.SendMessage)
+		api.GET("/rooms/:room/:nickname/send", c.SendMessage)
 		// api.GET("/ws", c.RegisterConnection)
 	}
 }
