@@ -11,8 +11,8 @@ type Repo struct {
 	DB *gorm.DB
 }
 
-func NewRepo(dsn string) (*Repo, error) {
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+func NewRepo(sqliteDB string) (*Repo, error) {
+	db, err := gorm.Open(sqlite.Open(sqliteDB), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +28,8 @@ func NewRepo(dsn string) (*Repo, error) {
 	return &Repo{DB: db}, nil
 }
 
-func (r *Repo) CreateRoom(name string) error {
-	return r.DB.Create(&models.Room{Name: name}).Error
+func (r *Repo) AddRoom(name string) error {
+	return r.DB.Create(&models.Room{ID: name}).Error
 }
 
 func (r *Repo) GetRooms() ([]models.Room, error) {
@@ -38,7 +38,7 @@ func (r *Repo) GetRooms() ([]models.Room, error) {
 	return rooms, err
 }
 
-func (r *Repo) CreateMessage(msg models.Message) error {
+func (r *Repo) AddMessage(msg models.Message) error {
 	return r.DB.Create(&msg).Error
 }
 

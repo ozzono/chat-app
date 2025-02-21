@@ -21,39 +21,39 @@ type Task interface {
 }
 
 var (
-	executionLimit = 2
+	ExecutionLimit = 2
 )
 
 func init() {
 	if os.Getenv("RETRY_EXECUTION_LIMIT") != "" {
 		limit, err := strconv.Atoi(os.Getenv("RETRY_EXECUTION_LIMIT"))
 		if err == nil {
-			executionLimit = limit
+			ExecutionLimit = limit
 		}
 	}
 }
 
-// NewWorker creates a new Worker with a channel for tasks
 func NewWorker(name string) *Worker {
-	return &Worker{
+	w := Worker{
 		Name:      name,
 		TaskQueue: make(chan Task),
 	}
+	return &w
 }
 
 func (w *Worker) StartWorker(ctx context.Context) {
 	log.Printf("starting %s worker", w.Name)
 	go func() {
-		defer log.Printf("stopping %s worker", w.Name)
 		for {
 			select {
 			case task := <-w.TaskQueue:
-				if err := task.Action(ctx); err != nil && task.ExecCount() < executionLimit {
+				if err := task.Action(ctx); err != nil && task.ExecCount() < ExecutionLimit {
 					task.AddExecCount()
 					w.TaskQueue <- task
 				}
 			case <-ctx.Done():
-				return // Exit the loop if the context is cancelled
+				defer log.Printf("stopping %s worker", w.Name)
+				return
 			}
 		}
 	}()

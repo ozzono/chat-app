@@ -141,9 +141,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/ws": {
-            "get": {
-                "description": "Establish and handle WebSocket connections",
+        "/api/v1/rooms/{room}/send": {
+            "put": {
+                "description": "Send a message to a specific room identified by room ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -153,8 +153,86 @@ const docTemplate = `{
                 "tags": [
                     "websocket"
                 ],
-                "summary": "Handle WebSocket connections",
-                "responses": {}
+                "summary": "Send a message to a specific room",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "room ID",
+                        "name": "room",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Payload with nickname and message",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Message": {
+            "type": "object",
+            "required": [
+                "content",
+                "nickname"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
             }
         }
     }

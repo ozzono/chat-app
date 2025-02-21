@@ -1,0 +1,124 @@
+package controller
+
+import (
+	"chat-app/internal/models"
+	"chat-app/pkg/utils"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+)
+
+// SendMessage sends a message to a specific room
+// @Summary Send a message to a specific room
+// @Description Send a message to a specific room identified by room ID
+// @Tags websocket
+// @Accept json
+// @Produce json
+// @Param room query string true "room ID"
+// @Param payload body models.Message true "Payload with nickname and message"
+// @Success 200 {object} map[string]string{}
+// @Failure 400 {object} map[string]string{}
+// @Failure 404 {object} map[string]string{}
+// @Failure 500 {object} map[string]string{}
+// @Router /api/v1/rooms/{room}/send [put]
+func (c *Controller) SendMessage(ctx *gin.Context) {
+	roomID := ctx.Param("room")
+	if roomID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "listener query parameter is required"})
+		return
+	}
+
+	room, found := c.GetRoom(roomID)
+	if !found {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "room not found"})
+		return
+	}
+
+	var message models.Message
+
+	if err := ctx.ShouldBindJSON(&message); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	message.Room = roomID
+	message.Timestamp = time.Now().UTC()
+
+	room.Worker.TaskQueue <- &messageTask{message: message}
+
+	if err := c.repo.AddMessage(message); err != nil {
+		log.Printf("Error adding message to the database: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add message to the database"})
+		return
+	}
+
+	log.Printf("Message sent to listener %s: %s", roomID, message.Content)
+	ctx.JSON(http.StatusOK, gin.H{"msg": "message sent successfully"})
+}
+
+func (c *Controller) manageConnection(ctx *gin.Context, conn *websocket.Conn, listenerID string) {
+	go func() {
+	outter:
+		for {
+			select {
+			case <-c.ctx.Done():
+				conn.Close()
+				ctx.JSON(http.StatusServiceUnavailable, gin.H{"error": "server shutting down"})
+				return
+			default:
+				_, _, err := conn.ReadMessage()
+				if err != nil {
+					log.Printf("Error reading message for listener %s: %v", listenerID, err)
+					break outter
+				}
+			}
+		}
+	}()
+}
+
+// BindRoom godoc
+// @Summary Bind to chat room
+// @Description Bind to a given chat room
+// @Tags chat
+// @Accept  json
+// @Produce  json
+// @Param room path string true "Room name"
+// @Param nickname query string true "Nickname"
+// @Success 200 {string} string "Connected"
+// @Router /api/v1/rooms/{room}/bind [get]
+func (c *Controller) BindRoom(ctx *gin.Context) {
+	roomID := ctx.Param("room")
+
+	conn, err := utils.NewSocketConnection(ctx.Writer, ctx.Request)
+	if err != nil {
+		log.Printf("error establishing websocket connection for listener %s: %v", roomID, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to establish websocket connection"})
+		return
+	}
+
+	room, exists := c.GetRoom(roomID)
+	if !exists {
+		room := c.NewRoom(roomID, conn)
+		room.Worker.StartWorker(c.ctx)
+	}
+
+	c.manageConnection(ctx, room.Connection, roomID)
+}
+
+// // WebSocket handler to register connections
+// func (c *Controller) RegisterConnection(ctx *gin.Context) {
+// 	// Extract listener ID from query
+// 	listenerID := ctx.Query("listener")
+// 	if listenerID == "" {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "listener query parameter is required"})
+// 		return
+// 	}
+
+// 	log.Printf("New WebSocket connection established for listener: %s", listenerID)
+
+// 	c.ManageConnection(conn, listenerID)
+// 	ctx.Status(http.StatusOK)
+// }

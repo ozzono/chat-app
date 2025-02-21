@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"chat-app/internal/controller"
+	"chat-app/internal/repo"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,14 @@ import (
 func main() {
 	r := gin.Default()
 
-	ctrl, err := controller.NewController(controller.WithRouter(r))
+	repo, err := repo.NewRepo(":memory:")
+	if err != nil {
+		log.Fatalf("Failed to create repository: %v", err)
+	}
+	ctrl, err := controller.NewController(
+		controller.WithRouter(r),
+		controller.WithRepo(repo),
+	)
 	if err != nil {
 		log.Fatalf("Failed to create controller: %v", err)
 	}

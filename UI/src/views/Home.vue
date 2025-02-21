@@ -35,9 +35,9 @@ export default {
         });
     },
     createRoom() {
-      const roomName = prompt('Enter room name:');
-      if (roomName) {
-        axios.post('/api/v1/rooms', { name: roomName })
+      const roomID = prompt('Enter room id:');
+      if (roomID) {
+        axios.post('/api/v1/rooms', { id: roomID })
           .then(() => {
             this.fetchRooms();
           })

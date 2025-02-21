@@ -25,7 +25,7 @@ func (suite *RepoTestSuite) SetupSuite() {
 }
 
 func (suite *RepoTestSuite) Test1Room() {
-	err := suite.repo.CreateRoom(testRoom)
+	err := suite.repo.AddRoom(testRoom)
 	suite.NoError(err)
 
 	rooms, err := suite.repo.GetRooms()
@@ -33,7 +33,7 @@ func (suite *RepoTestSuite) Test1Room() {
 	suite.NoError(err)
 	testRoom, found := roomsMap[testRoom]
 	suite.True(found)
-	suite.Equal(testRoom.Name, testRoom.Name)
+	suite.Equal(testRoom.ID, testRoom.ID)
 }
 
 func (suite *RepoTestSuite) Test2Message() {
@@ -42,7 +42,7 @@ func (suite *RepoTestSuite) Test2Message() {
 		Nickname: "user1",
 		Content:  "Hello, world!",
 	}
-	err := suite.repo.CreateMessage(msg)
+	err := suite.repo.AddMessage(msg)
 	suite.NoError(err)
 
 	messages, err := suite.repo.GetMessages(testRoom)

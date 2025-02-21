@@ -1,10 +1,8 @@
 package models
 
 import (
-	"chat-app/pkg/queue"
+	"fmt"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Session struct {
@@ -13,17 +11,10 @@ type Session struct {
 }
 
 type Message struct {
-	Room      string
-	Nickname  string
-	Timestamp time.Time
-	Content   string
-}
-
-type Room struct {
-	gorm.Model
-	Name      string          `gorm:"unique"`
-	TaskQueue chan queue.Task `gorm:"-"`
-	Worker    *queue.Worker   `gorm:"-"`
+	Room      string    `json:"room"       gorm:"room"`
+	Nickname  string    `json:"nickname"   gorm:"nickname"  binding:"required"`
+	Timestamp time.Time `json:"timestamp"  gorm:"timestamp"`
+	Content   string    `json:"content"    gorm:"content"   binding:"required"`
 }
 
 type Rooms []Room
@@ -32,19 +23,19 @@ type Messages []Message
 func ToMap[T Custom](input []T) map[string]T {
 	valueMap := make(map[string]T)
 	for _, value := range input {
-		valueMap[value.GetName()] = value
+		valueMap[value.GetID()] = value
 	}
 	return valueMap
 }
 
 type Custom interface {
-	GetName() string
+	GetID() string
 }
 
-func (r Room) GetName() string {
-	return r.Name
+func (r Room) GetID() string {
+	return r.ID
 }
 
-func (m Message) GetName() string {
-	return m.Room
+func (m Message) Fmt() string {
+	return fmt.Sprintf("[%s] %s: %s", m.Timestamp.Format("2006-01-02 15:04:05"), m.Nickname, m.Content)
 }

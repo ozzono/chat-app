@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"context"
 	"errors"
+	"sync"
 
-	_ "chat-app/docs" // replace with the actual path to your docs
+	_ "chat-app/docs"
+	"chat-app/internal/models"
 	"chat-app/internal/repo"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +15,12 @@ import (
 )
 
 type Controller struct {
+	ctx    context.Context
 	router *gin.Engine
 	repo   *repo.Repo
+
+	mu    sync.Mutex
+	Rooms map[string]*models.Room
 }
 
 type Option func(*Controller) error
@@ -33,27 +40,31 @@ func WithRepo(r *repo.Repo) Option {
 }
 
 func NewController(opts ...Option) (*Controller, error) {
-	c := &Controller{}
+	c := &Controller{Rooms: make(map[string]*models.Room)}
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
 			return nil, err
 		}
 	}
+
 	if c.router == nil {
 		return nil, errors.New("router cannot be nil")
 	}
+	if c.repo == nil {
+		return nil, errors.New("repo cannot be nil")
+	}
+
 	return c, nil
 }
-
 func (c *Controller) RegisterRoutes() {
-	c.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	apiV1 := c.router.Group("/api/v1")
-
-	apiV1.GET("/ws", c.WebSocketHandler)
-
-	apiV1.GET("/health", c.HealthHandler)
-	apiV1.GET("/rooms", c.GetRoomsHandler)
-	apiV1.POST("/rooms", c.CreateRoomHandler)
-	apiV1.GET("/rooms/:room/bind", c.BindRoomHandler)
+	c.router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	api := c.router.Group("/api/v1")
+	{
+		api.GET("/health", c.Health)
+		api.GET("/rooms", c.GetRooms)
+		api.POST("/rooms", c.CreateRoom)
+		api.GET("/rooms/:room/bind", c.BindRoom)
+		api.PUT("/rooms/:room/send", c.SendMessage)
+		// api.GET("/ws", c.RegisterConnection)
+	}
 }
