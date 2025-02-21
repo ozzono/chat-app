@@ -2,7 +2,6 @@ package queue
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -45,7 +44,6 @@ func NewWorker(name string) *Worker {
 
 func (w *Worker) StartWorker(ctx context.Context) {
 	log.Printf("starting %s worker", w.Name)
-	fmt.Println("stuff StartWorker 1")
 	for {
 		select {
 		case task := <-w.TaskQueue:
@@ -53,13 +51,11 @@ func (w *Worker) StartWorker(ctx context.Context) {
 				task.Log()
 				return
 			}
-			fmt.Println("stuff StartWorker 3")
 			if err := task.Action(ctx); err != nil {
 				task.AddExecCount()
 				w.TaskQueue <- task
 			}
 		case <-ctx.Done():
-			fmt.Println("stuff StartWorker 4")
 			defer log.Printf("stopping %s worker", w.Name)
 			return
 		}

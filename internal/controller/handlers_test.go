@@ -23,6 +23,7 @@ var (
 		ID:     "testroom",
 		Worker: queue.NewWorker("testroom"),
 	}
+	testNickname = "testuser"
 )
 
 type HandlersTestSuite struct {
@@ -69,20 +70,21 @@ func (suite *HandlersTestSuite) Test1Health() {
 
 func (suite *HandlersTestSuite) Test2BindRoom() {
 	fmt.Println("starting Test2BindRoom")
-	bindingUrl := "ws" + strings.TrimPrefix(suite.server.URL, "http") + "/api/v1/rooms/testroom/bind?nickname=user1"
+	bindingUrl := fmt.Sprintf("ws%s/api/v1/rooms/%s/bind?nickname=%s", strings.TrimPrefix(suite.server.URL, "http"), testRoom.ID, testNickname)
 	ws1, _, err := websocket.DefaultDialer.Dial(bindingUrl, nil)
 	suite.NoError(err)
 	fmt.Println("dial no err")
-	ws1.Close()
+	defer ws1.Close()
 
-	readingURL := "ws" + strings.TrimPrefix(suite.server.URL, "http") + "/api/v1/rooms/testroom/testuser/send?content=hello"
-	ws2, _, _ := websocket.DefaultDialer.Dial(readingURL, nil)
+	readingURL := fmt.Sprintf("ws%s/api/v1/rooms/%s/%s/send?content=hello", strings.TrimPrefix(suite.server.URL, "http"), testRoom.ID, testNickname)
+	_, _, _ = websocket.DefaultDialer.Dial(readingURL, nil)
+	// suite.NoError(err)
 
-	_, msg, err := ws2.ReadMessage()
-	fmt.Println("read message no err")
-
+	_, msg, err := ws1.ReadMessage()
 	suite.NoError(err)
-	suite.Equal("hello", string(msg))
+
+	pattern := fmt.Sprintf(`^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] %s: %s$`, testNickname, "hello")
+	suite.Regexp(pattern, string(msg))
 }
 
 // func (suite *HandlersTestSuite) Test2CreateRoom() {

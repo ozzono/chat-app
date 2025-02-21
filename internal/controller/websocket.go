@@ -88,13 +88,22 @@ func (c *Controller) BindRoom(ctx *gin.Context) {
 		return
 	}
 
-	_, exists := c.GetRoom(roomID)
-	if !exists {
-		room := c.NewRoom(roomID, conn)
-		go room.Worker.StartWorker(c.ctx)
+	room, exists := c.GetRoom(roomID)
+	defer func() {
+		room.AddConnection(conn)
+		log.Printf("new websocket connection established for room: %s", roomID)
+	}()
+	if exists {
+		return
 	}
-	// ctx.JSON(http.StatusOK, gin.H{"msg": "connected"})
-	// go c.manageConnection(ctx, room.Connection, roomID)
+	room = c.NewRoom(roomID)
+	go room.Worker.StartWorker(c.ctx)
+	err = c.repo.AddRoom(room.ID)
+	if err != nil {
+		log.Printf("error room to db %s: %v", room.ID, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add room to db"})
+		return
+	}
 }
 
 // // WebSocket handler to register connections

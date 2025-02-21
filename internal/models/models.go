@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 type Session struct {
@@ -34,6 +36,12 @@ type Custom interface {
 
 func (r Room) GetID() string {
 	return r.ID
+}
+
+func (r *Room) AddConnection(conn *websocket.Conn) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.Connection = append(r.Connection, conn)
 }
 
 func (m Message) Fmt() string {

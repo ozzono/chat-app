@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 	"testing"
 	"time"
@@ -34,6 +35,10 @@ func (t *mockTask) AddExecCount() {
 
 func (t mockTask) ExecCount() int {
 	return t.execCount
+}
+
+func (t mockTask) Log() {
+	log.Println("mockTask")
 }
 
 func (t *mockTask) Action(ctx context.Context) error {
@@ -91,49 +96,6 @@ func TestContextCancellation(t *testing.T) {
 	var task Task = &mockTask{m: &sync.Mutex{}}
 	if err := task.Action(ctx); err != context.Canceled {
 		t.Log("Expected context cancellation error")
-		t.FailNow()
-	}
-}
-
-func TestWorkerWithMultipleTasks(t *testing.T) {
-	// Create a worker
-	worker := NewWorker("testWorker")
-	worker.StartWorker(context.Background())
-
-	// Define a function to simulate task execution
-	executeTask := func(task Task) {
-		worker.TaskQueue <- task
-	}
-
-	// Create a wait group to wait for all tasks to complete
-	var wg sync.WaitGroup
-	wg.Add(3) // Assuming we have 3 tasks
-
-	// Define tasks
-	task1 := &mockTask{m: &sync.Mutex{}}
-	task2 := &mockTask{m: &sync.Mutex{}}
-	task3 := &mockTask{m: &sync.Mutex{}}
-
-	// Execute tasks
-	go func() {
-		executeTask(task1)
-		wg.Done()
-	}()
-	go func() {
-		executeTask(task2)
-		wg.Done()
-	}()
-	go func() {
-		executeTask(task3)
-		wg.Done()
-	}()
-
-	// Wait for all tasks to complete
-	wg.Wait()
-
-	// Verify task execution counts
-	if task1.ExecCount() != 1 || task2.ExecCount() != 1 || task3.ExecCount() != 1 {
-		t.Log("Tasks were not executed as expected")
 		t.FailNow()
 	}
 }

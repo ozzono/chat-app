@@ -65,41 +65,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Create a new chat room",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "chat"
-                ],
-                "summary": "Create chat room",
-                "parameters": [
-                    {
-                        "description": "Room name",
-                        "name": "room",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Room created",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
         "/api/v1/rooms/{room}/bind": {
@@ -142,7 +107,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/rooms/{room}/send": {
-            "put": {
+            "get": {
                 "description": "Send a message to a specific room identified by room ID",
                 "consumes": [
                     "application/json"
@@ -159,7 +124,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "room ID",
                         "name": "room",
-                        "in": "query",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "nickname",
+                        "name": "nickname",
+                        "in": "path",
                         "required": true
                     },
                     {

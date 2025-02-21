@@ -55,29 +55,6 @@ paths:
       summary: Get chat rooms
       tags:
       - chat
-    post:
-      consumes:
-      - application/json
-      description: Create a new chat room
-      parameters:
-      - description: Room name
-        in: body
-        name: room
-        required: true
-        schema:
-          additionalProperties:
-            type: string
-          type: object
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Room created
-          schema:
-            type: string
-      summary: Create chat room
-      tags:
-      - chat
   /api/v1/rooms/{room}/bind:
     get:
       consumes:
@@ -105,14 +82,19 @@ paths:
       tags:
       - chat
   /api/v1/rooms/{room}/send:
-    put:
+    get:
       consumes:
       - application/json
       description: Send a message to a specific room identified by room ID
       parameters:
       - description: room ID
-        in: query
+        in: path
         name: room
+        required: true
+        type: string
+      - description: nickname
+        in: path
+        name: nickname
         required: true
         type: string
       - description: Payload with nickname and message

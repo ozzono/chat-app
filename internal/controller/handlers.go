@@ -2,10 +2,11 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"sync"
+	"time"
 
 	"chat-app/internal/models"
 	"chat-app/pkg/queue"
@@ -103,15 +104,15 @@ func (c *Controller) GetRooms(ctx *gin.Context) {
 
 type messageTask struct {
 	message   models.Message
-	conn      *websocket.Conn
+	connPool  []*websocket.Conn
 	execCount int
 	mu        sync.Mutex
 }
 
-func NewMsgTask(msg models.Message, conn *websocket.Conn) queue.Task {
+func NewMsgTask(msg models.Message, conn []*websocket.Conn) queue.Task {
 	return &messageTask{
-		message: msg,
-		conn:    conn,
+		message:  msg,
+		connPool: conn,
 	}
 }
 
@@ -120,38 +121,34 @@ func (t *messageTask) Log() {
 }
 
 func (t *messageTask) Action(ctx context.Context) error {
-	fmt.Println("stuff msg task Action 5")
 
-	if t.conn == nil {
+	if t.connPool == nil {
 		return nil
 	}
-	fmt.Println("stuff msg task Action 6")
 	if t.ExecCount() >= queue.ExecutionLimit {
 		return errors.New("message reached execution limit")
 	}
 
 	defer t.AddExecCount()
-	text := t.message.Fmt()
-	fmt.Println("t.message.Fmt()", text)
-	err := t.conn.WriteMessage(websocket.TextMessage, []byte(text))
 
-	if err != nil {
-		fmt.Println("stuff msg task Action 8")
-		return errors.Wrap(err, "failed to send message")
+	for i, conn := range t.connPool {
+		err := conn.WriteMessage(websocket.TextMessage, []byte(t.message.Fmt()))
+		if err != nil {
+			log.Printf("error sending message [%d] from %s: %v", i, t.message.Nickname, err)
+			time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
+		}
 	}
-	fmt.Println("stuff msg task Action 9")
+
 	return nil
 }
 
 func (t *messageTask) ExecCount() int {
-	fmt.Println("stuff ExecCount 10")
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	return t.execCount
 }
 
 func (t *messageTask) AddExecCount() {
-	fmt.Println("stuff AddExecCount 11")
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.execCount++
