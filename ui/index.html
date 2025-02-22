@@ -107,7 +107,7 @@
         }
 
         function joinRoom() {
-            const nickname = document.getElementById('nickname').value;
+            let nickname = document.getElementById('nickname').value;
             let roomId = document.getElementById('roomId').value;
 
             if (!nickname || !roomId) {
@@ -116,6 +116,7 @@
             }
 
             roomId = roomId.replace(/\s+/g, '-');
+            nickname = nickname.replace(/\s+/g, '-');
 
             if (socket) {
                 socket.close();
