@@ -12,6 +12,7 @@ import (
 )
 
 // SendMessage sends a message to a specific room
+//
 //	@Summary		Send a message to a specific room
 //	@Description	Send a message to a specific room identified by room ID
 //	@Tags			websocket
@@ -70,6 +71,7 @@ func (c *Controller) SendMessage(ctx *gin.Context) {
 }
 
 // BindRoom godoc
+//
 //	@Summary		Bind to chat room
 //	@Description	Bind to a given chat room
 //	@Tags			chat
@@ -119,18 +121,3 @@ func (c *Controller) BindRoom(ctx *gin.Context) {
 		}
 	}
 }
-
-// // WebSocket handler to register connections
-// func (c *Controller) RegisterConnection(ctx *gin.Context) {
-// 	// Extract listener ID from query
-// 	listenerID := ctx.Query("listener")
-// 	if listenerID == "" {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "listener query parameter is required"})
-// 		return
-// 	}
-
-// 	log.Printf("New WebSocket connection established for listener: %s", listenerID)
-
-// 	c.ManageConnection(conn, listenerID)
-// 	ctx.Status(http.StatusOK)
-// }

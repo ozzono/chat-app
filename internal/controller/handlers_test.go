@@ -37,7 +37,6 @@ func (suite *HandlersTestSuite) SetupSuite() {
 	gin.SetMode(gin.TestMode)
 	suite.router = gin.Default()
 
-	// Initialize the repository
 	var err error
 	suite.repo, err = repo.NewRepo(":memory:")
 	if err != nil {
@@ -86,17 +85,6 @@ func (suite *HandlersTestSuite) Test2BindRoom() {
 	pattern := fmt.Sprintf(`^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] %s: %s$`, testNickname, "hello")
 	suite.Regexp(pattern, string(msg))
 }
-
-// func (suite *HandlersTestSuite) Test2CreateRoom() {
-// 	w := httptest.NewRecorder()
-// 	body := roomPayload(testRoom.ID)
-// 	req, _ := http.NewRequest("POST", "/api/v1/rooms", strings.NewReader(body))
-// 	req.Header.Set("Content-Type", "application/json")
-// 	suite.router.ServeHTTP(w, req)
-
-// 	suite.Equal(201, w.Code)
-// 	suite.JSONEq(`{"msg": "Room created"}`, w.Body.String())
-// }
 
 func (suite *HandlersTestSuite) Test3GetRooms() {
 	rec := httptest.NewRecorder()

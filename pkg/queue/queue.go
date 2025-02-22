@@ -7,13 +7,11 @@ import (
 	"strconv"
 )
 
-// Worker struct
 type Worker struct {
 	Name      string
 	TaskQueue chan Task
 }
 
-// Task interface
 type Task interface {
 	Action(ctx context.Context) error
 	ExecCount() int
