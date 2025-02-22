@@ -81,7 +81,6 @@ func (c *Controller) SendMessage(ctx *gin.Context) {
 	}
 	log.Printf("Message sent to %s room: %s", roomID, message.Content)
 	ctx.Done()
-	// ctx.JSON(http.StatusOK, gin.H{"msg": "message sent successfully"})
 }
 
 // BindRoom godoc

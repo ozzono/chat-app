@@ -78,8 +78,6 @@ func (c *Controller) RegisterRoutes() {
 		c.Next()
 	})
 
-	// c.router.Static("/ui", "ui")
-	// c.router.LoadHTMLGlob("ui/*.html")
 	c.router.GET("/", index)
 
 	c.router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

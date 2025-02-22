@@ -40,6 +40,5 @@ func main() {
 
 	ctrl.RegisterRoutes()
 
-	// Swagger endpoint
 	r.Run(":8080")
 }
