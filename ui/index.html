@@ -108,18 +108,20 @@
 
         function joinRoom() {
             const nickname = document.getElementById('nickname').value;
-            const roomId = document.getElementById('roomId').value;
+            let roomId = document.getElementById('roomId').value;
 
             if (!nickname || !roomId) {
                 alert('Please enter both nickname and room ID');
                 return;
             }
 
+            roomId = roomId.replace(/\s+/g, '-');
+
             if (socket) {
                 socket.close();
             }
 
-            // Clear the message list for the room
+           
             if (roomMessages[roomId]) {
                 roomMessages[roomId] = [];
             }
@@ -215,7 +217,7 @@
 
         function sendMessage() {
             const nickname = document.getElementById('nickname').value;
-            const roomId = document.getElementById('roomId').value;
+            let roomId = document.getElementById('roomId').value;
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
 
@@ -223,6 +225,8 @@
                 alert('Please enter nickname, room ID and message');
                 return;
             }
+
+            roomId = roomId.replace(/\s+/g, '-');
 
             const sendSocket = new WebSocket(
                 `ws://${window.location.hostname}:8080/api/v1/rooms/${roomId}/${nickname}/send?content=${encodeURIComponent(message)}`
