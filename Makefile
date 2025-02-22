@@ -8,10 +8,10 @@ start-go: swag
 	go run ./cmd/
 
 start:
-	docker-compose up api
+	docker-compose up -d api
 
 test:
-	docker-compose up test
+	docker-compose up -d test
 
 test-go: test-go-controller test-go-repo test-go-queue test-go-bot
 
