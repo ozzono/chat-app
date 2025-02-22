@@ -54,7 +54,7 @@ paths:
             type: array
       summary: Get chat rooms
       tags:
-      - chat
+      - room
   /api/v1/rooms/{room}/bind:
     get:
       consumes:
@@ -80,7 +80,7 @@ paths:
             type: string
       summary: Bind to chat room
       tags:
-      - chat
+      - websocket
   /api/v1/rooms/{room}/send:
     get:
       consumes:

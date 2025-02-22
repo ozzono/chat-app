@@ -69,11 +69,6 @@ func (c *Controller) SendMessage(ctx *gin.Context) {
 		botMsg.Room = roomID
 		defer func() {
 			room.Worker.TaskQueue <- NewMsgTask(botMsg, room.Connection)
-			if err := c.repo.AddMessage(botMsg); err != nil {
-				log.Printf("error adding bot message to the database: %v", err)
-				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add bot message to the database"})
-				return
-			}
 		}()
 	}
 
@@ -93,7 +88,7 @@ func (c *Controller) SendMessage(ctx *gin.Context) {
 //
 //	@Summary		Bind to chat room
 //	@Description	Bind to a given chat room
-//	@Tags			chat
+//	@Tags			websocket
 //	@Accept			json
 //	@Produce		json
 //	@Param			room		path		string	true	"Room name"
@@ -138,5 +133,8 @@ func (c *Controller) BindRoom(ctx *gin.Context) {
 				log.Printf("failed do send history message to socket; msg %s - err: %v", m, err)
 			}
 		}
+	}
+	if err = conn.WriteMessage(websocket.TextMessage, []byte("chat loaded")); err != nil {
+		log.Printf("failed do send history message to socket; msg %s - err: %v", "chat loaded", err)
 	}
 }

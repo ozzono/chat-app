@@ -57,7 +57,7 @@
             <input type="text" id="roomId" placeholder="Enter room ID" required>
         </div>
         <div class="form-group">
-            <button class="btn" onclick="joinRoom()">Join Room</button>
+            <button class="btn" onclick="joinRoom()">Log into Room</button>
             <button class="btn" onclick="listRooms()">List Rooms</button>
         </div>
         <div id="roomsList"></div>
@@ -158,7 +158,7 @@
                     info.textContent = `Room: ${roomId}`;
 
                     const joinBtn = document.createElement('button');
-                    joinBtn.textContent = 'Join';
+                    joinBtn.textContent = 'Log in';
                     joinBtn.className = 'btn';
                     joinBtn.onclick = () => {
                         document.getElementById('roomId').value = roomId;

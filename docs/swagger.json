@@ -45,7 +45,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "chat"
+                    "room"
                 ],
                 "summary": "Get chat rooms",
                 "responses": {
@@ -71,7 +71,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "chat"
+                    "websocket"
                 ],
                 "summary": "Bind to chat room",
                 "parameters": [

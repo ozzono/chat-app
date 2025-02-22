@@ -51,7 +51,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "chat"
+                    "room"
                 ],
                 "summary": "Get chat rooms",
                 "responses": {
@@ -77,7 +77,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "chat"
+                    "websocket"
                 ],
                 "summary": "Bind to chat room",
                 "parameters": [

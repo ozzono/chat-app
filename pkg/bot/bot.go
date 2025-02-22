@@ -38,11 +38,11 @@ func parseCMD(input string) string {
 }
 
 func getStock(code string) string {
-	code = strings.ToUpper(code)
 	res, err := http.Get(fmt.Sprintf("https://stooq.com/q/l/?s=%s&f=sd2t2ohlcv&h&e=csv", code))
 	if err != nil {
 		return fmt.Sprintf("failed to fetch %s stock value; please try again.", code)
 	}
+	code = strings.ToUpper(code)
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {

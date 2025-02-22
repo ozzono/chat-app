@@ -33,7 +33,7 @@ func (c *Controller) Health(ctx *gin.Context) {
 //
 //	@Summary		Get chat rooms
 //	@Description	List available chat rooms
-//	@Tags			chat
+//	@Tags			room
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}	string
