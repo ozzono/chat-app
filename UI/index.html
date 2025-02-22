@@ -93,7 +93,6 @@
                 socket.close();
             }
 
-            // Clear both message box and rooms list
             document.getElementById('messageBox').innerHTML = '';
             document.getElementById('roomsList').innerHTML = '';
 
@@ -145,7 +144,7 @@
                 ul.style.listStyle = 'none';
                 ul.style.padding = '0';
                 
-                rooms.forEach(room => {
+                rooms.forEach(roomId => {
                     const li = document.createElement('li');
                     li.style.display = 'flex';
                     li.style.justifyContent = 'space-between';
@@ -156,13 +155,13 @@
                     li.style.borderRadius = '5px';
 
                     const info = document.createElement('span');
-                    info.textContent = `Room: ${room.room} - Users: ${room.users}`;
+                    info.textContent = `Room: ${roomId}`;
 
                     const joinBtn = document.createElement('button');
                     joinBtn.textContent = 'Join';
                     joinBtn.className = 'btn';
                     joinBtn.onclick = () => {
-                        document.getElementById('roomId').value = room.room;
+                        document.getElementById('roomId').value = roomId;
                         roomsList.innerHTML = ''; 
                         joinRoom(); 
                     };

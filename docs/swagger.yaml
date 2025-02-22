@@ -14,13 +14,6 @@ definitions:
     - content
     - nickname
     type: object
-  models.UIRoom:
-    properties:
-      room:
-        type: string
-      users:
-        type: integer
-    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -57,7 +50,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.UIRoom'
+              type: string
             type: array
       summary: Get chat rooms
       tags:

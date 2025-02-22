@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"sort"
 	"sync"
 	"time"
 
@@ -37,17 +36,14 @@ func (c *Controller) Health(ctx *gin.Context) {
 //	@Tags			chat
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}	models.UIRoom
+//	@Success		200	{array}	string
 //	@Router			/api/v1/rooms [get]
 func (c *Controller) GetRooms(ctx *gin.Context) {
-	var rooms = []models.UIRoom{}
-	for _, r := range c.Rooms {
-		rooms = append(rooms, models.UIRoom{Room: r.ID, Users: len(r.Connection)})
+	r := []string{}
+	for key := range c.Rooms {
+		r = append(r, key)
 	}
-	sort.Slice(rooms, func(i, j int) bool {
-		return rooms[i].Users > rooms[j].Users
-	})
-	ctx.JSON(http.StatusOK, rooms)
+	ctx.JSON(http.StatusOK, r)
 }
 
 type messageTask struct {

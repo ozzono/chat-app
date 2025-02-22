@@ -54,7 +54,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.UIRoom"
+                                "type": "string"
                             }
                         }
                     }
@@ -198,17 +198,6 @@
                 },
                 "timestamp": {
                     "type": "string"
-                }
-            }
-        },
-        "models.UIRoom": {
-            "type": "object",
-            "properties": {
-                "room": {
-                    "type": "string"
-                },
-                "users": {
-                    "type": "integer"
                 }
             }
         }
