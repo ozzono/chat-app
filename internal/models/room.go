@@ -7,6 +7,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type UIRoom struct {
+	Room  string `json:"room"`
+	Users int    `json:"users"`
+}
+
 type Room struct {
 	ID         string
 	Connection []*websocket.Conn `json:"-"    gorm:"-"`

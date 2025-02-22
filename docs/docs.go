@@ -60,7 +60,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/models.UIRoom"
                             }
                         }
                     }
@@ -204,6 +204,17 @@ const docTemplate = `{
                 },
                 "timestamp": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UIRoom": {
+            "type": "object",
+            "properties": {
+                "room": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "integer"
                 }
             }
         }

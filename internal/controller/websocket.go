@@ -12,19 +12,19 @@ import (
 )
 
 // SendMessage sends a message to a specific room
-// @Summary Send a message to a specific room
-// @Description Send a message to a specific room identified by room ID
-// @Tags websocket
-// @Accept json
-// @Produce json
-// @Param room path string true "room ID"
-// @Param nickname path string true "nickname"
-// @Param payload body models.Message true "Payload with nickname and message"
-// @Success 200 {object} map[string]string{}
-// @Failure 400 {object} map[string]string{}
-// @Failure 404 {object} map[string]string{}
-// @Failure 500 {object} map[string]string{}
-// @Router /api/v1/rooms/{room}/send [get]
+//	@Summary		Send a message to a specific room
+//	@Description	Send a message to a specific room identified by room ID
+//	@Tags			websocket
+//	@Accept			json
+//	@Produce		json
+//	@Param			room		path		string			true	"room ID"
+//	@Param			nickname	path		string			true	"nickname"
+//	@Param			payload		body		models.Message	true	"Payload with nickname and message"
+//	@Success		200			{object}	map[string]string{}
+//	@Failure		400			{object}	map[string]string{}
+//	@Failure		404			{object}	map[string]string{}
+//	@Failure		500			{object}	map[string]string{}
+//	@Router			/api/v1/rooms/{room}/send [get]
 func (c *Controller) SendMessage(ctx *gin.Context) {
 	roomID := ctx.Param("room")
 	if roomID == "" {
@@ -70,15 +70,15 @@ func (c *Controller) SendMessage(ctx *gin.Context) {
 }
 
 // BindRoom godoc
-// @Summary Bind to chat room
-// @Description Bind to a given chat room
-// @Tags chat
-// @Accept  json
-// @Produce  json
-// @Param room path string true "Room name"
-// @Param nickname query string true "Nickname"
-// @Success 200 {string} string "Connected"
-// @Router /api/v1/rooms/{room}/bind [get]
+//	@Summary		Bind to chat room
+//	@Description	Bind to a given chat room
+//	@Tags			chat
+//	@Accept			json
+//	@Produce		json
+//	@Param			room		path		string	true	"Room name"
+//	@Param			nickname	query		string	true	"Nickname"
+//	@Success		200			{string}	string	"Connected"
+//	@Router			/api/v1/rooms/{room}/bind [get]
 func (c *Controller) BindRoom(ctx *gin.Context) {
 	roomID := ctx.Param("room")
 

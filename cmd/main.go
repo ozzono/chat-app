@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @title Chat App API
-// @version 1.0
-// @description This is a sample server for a chat application.
-// @host localhost:8080
-// @BasePath /
+//	@title			Chat App API
+//	@version		1.0
+//	@description	This is a sample server for a chat application.
+//	@host			localhost:8080
+//	@BasePath		/
 
 func main() {
 	r := gin.Default()
