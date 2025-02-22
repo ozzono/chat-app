@@ -80,9 +80,7 @@ func (c *Controller) RegisterRoutes() {
 
 	// c.router.Static("/ui", "ui")
 	// c.router.LoadHTMLGlob("ui/*.html")
-	c.router.GET("/", gin.HandlerFunc(func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "index.html", nil)
-	}))
+	c.router.GET("/", index)
 
 	c.router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := c.router.Group("/api/v1")
@@ -92,4 +90,8 @@ func (c *Controller) RegisterRoutes() {
 		api.GET("/rooms/:room/bind", c.BindRoom)
 		api.GET("/rooms/:room/:nickname/send", c.SendMessage)
 	}
+}
+
+func index(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "index.html", nil)
 }

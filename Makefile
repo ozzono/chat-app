@@ -10,7 +10,7 @@ start-go: swag
 start: swag
 	docker-compose up --build
 
-test: test-controller test-repo test-queue
+test: test-controller test-repo test-queue test-bot
 
 test-controller:
 	@echo "Running tests in internal/controller..."
@@ -23,3 +23,7 @@ test-repo:
 test-queue:
 	@echo "Running tests in pkg/queue..."
 	@go test ./pkg/queue/... -v
+
+test-bot:
+	@echo "Running tests in pkg/bot..."
+	@go test ./pkg/bot/... -v

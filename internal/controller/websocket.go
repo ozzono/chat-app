@@ -2,9 +2,11 @@ package controller
 
 import (
 	"chat-app/internal/models"
+	"chat-app/pkg/bot"
 	"chat-app/pkg/utils"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,10 +60,27 @@ func (c *Controller) SendMessage(ctx *gin.Context) {
 		Content:   content,
 	}
 
+	if strings.HasPrefix(content, "/") {
+		botMsg, err := bot.ProcessCMD(content)
+		if err != nil {
+			log.Println("bot cmd process err", err)
+			return
+		}
+		botMsg.Room = roomID
+		defer func() {
+			room.Worker.TaskQueue <- NewMsgTask(botMsg, room.Connection)
+			if err := c.repo.AddMessage(botMsg); err != nil {
+				log.Printf("error adding bot message to the database: %v", err)
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add bot message to the database"})
+				return
+			}
+		}()
+	}
+
 	room.Worker.TaskQueue <- NewMsgTask(message, room.Connection)
 
 	if err := c.repo.AddMessage(message); err != nil {
-		log.Printf("Error adding message to the database: %v", err)
+		log.Printf("error adding message to the database: %v", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add message to the database"})
 		return
 	}

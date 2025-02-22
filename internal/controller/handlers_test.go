@@ -95,10 +95,10 @@ func (suite *HandlersTestSuite) Test3GetRooms() {
 
 	reqBody, err := io.ReadAll(rec.Result().Body)
 	suite.NoError(err)
-	reqRoom := []models.Room{}
+	reqRoom := []string{}
 	err = json.Unmarshal(reqBody, &reqRoom)
 	suite.NoError(err)
-	suite.Equal(testRoom.ID, reqRoom[0].ID)
+	suite.Equal(testRoom.ID, reqRoom[0])
 }
 
 func TestHandlersTestSuite(t *testing.T) {
