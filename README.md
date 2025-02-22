@@ -7,9 +7,16 @@ This is a simple chat application that allows users to join chat rooms and send 
 - Join chat rooms
 - Send messages
 - List available rooms
+- Support multiple rooms
+- Easy to change room
+- Loads previous room messages
 - Bot commands:
   - `/help`: shows the help menu
   - `/stock=SYMBOL`: fetches the value of a given stock
+
+### Technical features
+- depends exclusively of docker and git to run
+- depends exclusively of docker and git to run the tests
 
 ## Getting Started
 
@@ -30,15 +37,15 @@ This is a simple chat application that allows users to join chat rooms and send 
 2. Build and run the application using Docker Compose:
 
     ```sh
-    docker-compose up --build
+    make start
     ```
 
 3. Open your browser and navigate to `http://localhost:8080` to access the chat application.
 
 ### API Endpoints
 
-- **Join Room**: `GET /api/v1/rooms/{room}/bind`
-- **Send Message**: `GET /api/v1/rooms/{room}/{nickname}/send?content={message}`
+- **Join Room**: `ws /api/v1/rooms/{room}/bind`
+- **Send Message**: `ws /api/v1/rooms/{room}/{nickname}/send?content={message}`
 - **List Rooms**: `GET /api/v1/rooms`
 - These can be tested using [open api](http://localhost:8080/swagger/index.html)
 
@@ -59,21 +66,10 @@ This is a simple chat application that allows users to join chat rooms and send 
 To run the tests, use the following command:
 
 ```sh
-go test ./...
+make test
 ```
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-````
-
-</file>
-
-This README file includes:
-1. A brief description of the chat application and its features.
-2. Prerequisites for running the application.
-3. Instructions on how to build and run the application using Docker Compose.
-4. API endpoints and bot commands.
-5. Example usage of the application.
-6. Instructions for running tests.
-7. License information.
+## Notes
+- This project approached the log in as simple as possible without session management;
+- To use minimal resources, I chose to use in-memory sqLite as database;
+- To use minimal resources, I chose to use a runtime queue and worker system;

@@ -1,9 +1,21 @@
 version: '3.8'
 
+x-build: &build-settings
+  build:
+    context: .
+    dockerfile: Dockerfile
+
 services:
   api:
-    build: .
-    image: chat-app-api
+    <<: *build-settings
+    image: chat-app:latest
     container_name: chat-app-api
     ports:
       - "8080:8080"
+    command: ["./chat-app"]
+
+  test:
+    <<: *build-settings
+    image: chat-app:latest
+    container_name: chat-app-test
+    command: ["go", "test", "-v", "./..."]

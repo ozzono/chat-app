@@ -78,9 +78,6 @@ func (suite *HandlersTestSuite) Test2BindRoom() {
 	readingURL := fmt.Sprintf("ws%s/api/v1/rooms/%s/%s/send?content=hello", strings.TrimPrefix(suite.server.URL, "http"), testRoom.ID, testNickname)
 	_, _, _ = websocket.DefaultDialer.Dial(readingURL, nil)
 
-	_, _, err = ws1.ReadMessage() // skipping `chat loaded` msg
-	suite.NoError(err)
-
 	_, msg, err := ws1.ReadMessage()
 	suite.NoError(err)
 

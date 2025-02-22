@@ -1,4 +1,4 @@
-.PHONY: swag start start-go test test-controller test-repo test-queue
+.PHONY: swag start start-go test test-go-controller test-go-repo test-go-queue
 
 swag:
 	@echo "Generating Swagger documentation..."
@@ -7,23 +7,26 @@ swag:
 start-go: swag
 	go run ./cmd/
 
-start: swag
-	docker-compose up --build
+start:
+	docker-compose up api
 
-test: test-controller test-repo test-queue test-bot
+test:
+	docker-compose up test
 
-test-controller:
+test-go: test-go-controller test-go-repo test-go-queue test-go-bot
+
+test-go-controller:
 	@echo "Running tests in internal/controller..."
 	@go test ./internal/controller/... -v
 
-test-repo:
+test-go-repo:
 	@echo "Running tests in internal/repo..."
 	@go test ./internal/repo/... -v
 
-test-queue:
+test-go-queue:
 	@echo "Running tests in pkg/queue..."
 	@go test ./pkg/queue/... -v
 
-test-bot:
+test-go-bot:
 	@echo "Running tests in pkg/bot..."
 	@go test ./pkg/bot/... -v

@@ -70,12 +70,36 @@
     </div>
     <script>
         let socket = null;
+        const roomMessages = {};
 
-        function addMessage(message) {
+        function addMessage(roomId, message) {
+            if (!roomMessages[roomId]) {
+                roomMessages[roomId] = [];
+            }
+
+            if (roomMessages[roomId].length >= 50) {
+                roomMessages[roomId].shift(); // Remove the oldest message
+            }
+            roomMessages[roomId].push(message);
+
+            const messageBox = document.getElementById('messageBox');
+            messageBox.innerHTML = ''; // Clear the message box
+
+            roomMessages[roomId].forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.textContent = msg;
+                messageBox.appendChild(messageDiv);
+            });
+
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+
+        function displayChatLoaded() {
             const messageBox = document.getElementById('messageBox');
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
-            messageDiv.textContent = message;
+            messageDiv.textContent = "chat loaded";
             messageBox.appendChild(messageDiv);
             messageBox.scrollTop = messageBox.scrollHeight;
         }
@@ -91,6 +115,11 @@
 
             if (socket) {
                 socket.close();
+            }
+
+            // Clear the message list for the room
+            if (roomMessages[roomId]) {
+                roomMessages[roomId] = [];
             }
 
             document.getElementById('messageBox').innerHTML = '';
@@ -111,10 +140,14 @@
                 try {
                     const data = JSON.parse(event.data);
                     if (data.message) {
-                        addMessage(`${data.from || 'Anonymous'}: ${data.message}`);
+                        if (data.message === "chat loaded") {
+                            displayChatLoaded();
+                        } else {
+                            addMessage(roomId, `${data.from || 'Anonymous'}: ${data.message}`);
+                        }
                     }
                 } catch (e) {
-                    addMessage(event.data);
+                    addMessage(roomId, event.data);
                 }
             });
 
