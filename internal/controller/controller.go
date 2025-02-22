@@ -62,7 +62,21 @@ func NewController(opts ...Option) (*Controller, error) {
 
 	return c, nil
 }
+
 func (c *Controller) RegisterRoutes() {
+	c.router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+
 	c.router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := c.router.Group("/api/v1")
 	{
