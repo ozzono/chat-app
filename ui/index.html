@@ -72,18 +72,20 @@
         let socket = null;
         const roomMessages = {};
 
+        const serverAddress = `${window.location.protocol}//${window.location.hostname}:8080`;
+
         function addMessage(roomId, message) {
             if (!roomMessages[roomId]) {
                 roomMessages[roomId] = [];
             }
 
             if (roomMessages[roomId].length >= 50) {
-                roomMessages[roomId].shift(); // Remove the oldest message
+                roomMessages[roomId].shift();
             }
             roomMessages[roomId].push(message);
 
             const messageBox = document.getElementById('messageBox');
-            messageBox.innerHTML = ''; // Clear the message box
+            messageBox.innerHTML = '';
 
             roomMessages[roomId].forEach(msg => {
                 const messageDiv = document.createElement('div');
@@ -125,7 +127,7 @@
             document.getElementById('messageBox').innerHTML = '';
             document.getElementById('roomsList').innerHTML = '';
 
-            socket = new WebSocket(`ws://localhost:8080/api/v1/rooms/${roomId}/bind`);
+            socket = new WebSocket(`ws://${window.location.hostname}:8080/api/v1/rooms/${roomId}/bind`);
 
             socket.addEventListener('open', (event) => {
                 console.log('Connected to room:', roomId);
@@ -162,7 +164,7 @@
 
         async function listRooms() {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/rooms');
+                const response = await fetch(`${serverAddress}/api/v1/rooms`);
                 const rooms = await response.json();
                 
                 const roomsList = document.getElementById('roomsList');
@@ -223,7 +225,7 @@
             }
 
             const sendSocket = new WebSocket(
-                `ws://localhost:8080/api/v1/rooms/${roomId}/${nickname}/send?content=${encodeURIComponent(message)}`
+                `ws://${window.location.hostname}:8080/api/v1/rooms/${roomId}/${nickname}/send?content=${encodeURIComponent(message)}`
             );
 
             sendSocket.addEventListener('open', () => {
