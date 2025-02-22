@@ -44,6 +44,6 @@ func (r *Repo) AddMessage(msg models.Message) error {
 
 func (r *Repo) GetMessages(room string) ([]models.Message, error) {
 	var msgs models.Messages
-	err := r.DB.Find(&msgs, "room = ?", room).Error
+	err := r.DB.Find(&msgs, "room = ?", room).Order("timestamp ASC").Error
 	return msgs, err
 }

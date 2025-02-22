@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 // SendMessage sends a message to a specific room
@@ -89,20 +90,33 @@ func (c *Controller) BindRoom(ctx *gin.Context) {
 	}
 
 	room, exists := c.GetRoom(roomID)
-	defer func() {
-		room.AddConnection(conn)
+	if !exists {
+		room = c.NewRoom(roomID)
 		log.Printf("new websocket connection established for room: %s", roomID)
-	}()
-	if exists {
-		return
+		go room.Worker.StartWorker(c.ctx)
+		err = c.repo.AddRoom(room.ID)
+		if err != nil {
+			log.Printf("error room to db %s: %v", room.ID, err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add room to db"})
+			return
+		}
 	}
-	room = c.NewRoom(roomID)
-	go room.Worker.StartWorker(c.ctx)
-	err = c.repo.AddRoom(room.ID)
-	if err != nil {
-		log.Printf("error room to db %s: %v", room.ID, err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add room to db"})
-		return
+
+	room.AddConnection(conn)
+
+	if exists {
+		msgs, err := c.repo.GetMessages(room.ID)
+		if err != nil {
+			log.Printf("error getting %s room msgs: %v", room.ID, err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get room msgs from db"})
+			return
+		}
+		for _, msg := range msgs {
+			m := msg.Fmt()
+			if err = conn.WriteMessage(websocket.TextMessage, []byte(m)); err != nil {
+				log.Printf("failed do send history message to socket; msg %s - err: %v", m, err)
+			}
+		}
 	}
 }
 

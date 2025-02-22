@@ -68,9 +68,7 @@ func (c *Controller) RegisterRoutes() {
 	{
 		api.GET("/health", c.Health)
 		api.GET("/rooms", c.GetRooms)
-		// api.POST("/rooms", c.CreateRoom)
 		api.GET("/rooms/:room/bind", c.BindRoom)
 		api.GET("/rooms/:room/:nickname/send", c.SendMessage)
-		// api.GET("/ws", c.RegisterConnection)
 	}
 }
