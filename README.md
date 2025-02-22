@@ -39,6 +39,10 @@ This is a simple chat application that allows users to join chat rooms and send 
     ```sh
     make start
     ```
+    or
+    ```sh
+    docker-compose up api
+    ```
 
 3. Open your browser and navigate to `http://localhost:8080` to access the chat application.
 
@@ -68,6 +72,10 @@ To run the tests, use the following command:
 ```sh
 make test
 ```
+  or
+  ```sh
+  docker-compose up test
+  ```
 
 ## Notes
 - This project approached the log in as simple as possible without session management;
