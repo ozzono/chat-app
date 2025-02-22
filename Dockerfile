@@ -1,4 +1,4 @@
-# unfortunately Gos does not support CGO enabled builds
+# unfortunately Go images do not support CGO enabled builds
 FROM debian:12-slim
 
 RUN apt-get update && apt-get install -y \

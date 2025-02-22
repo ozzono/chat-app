@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"errors"
+	"net/http"
 	"sync"
 
 	_ "chat-app/docs"
@@ -76,6 +77,12 @@ func (c *Controller) RegisterRoutes() {
 
 		c.Next()
 	})
+
+	// c.router.Static("/ui", "ui")
+	// c.router.LoadHTMLGlob("ui/*.html")
+	c.router.GET("/", gin.HandlerFunc(func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", nil)
+	}))
 
 	c.router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := c.router.Group("/api/v1")
